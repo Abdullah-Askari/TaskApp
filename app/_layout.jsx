@@ -1,14 +1,16 @@
 import { Slot } from "expo-router";
-import SafeScreen from "../app/components/SafeScreen";
-import { AuthProvider } from "../app/Hooks/useAuth";
-import "../global.css";
+import { StatusBar } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+import '../global.css';
+import { AuthProvider } from './Hooks/useAuth';
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <SafeScreen>
+      <SafeAreaView style={{ flex: 1 }} >
+        <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         <Slot />
-      </SafeScreen>
+      </SafeAreaView>
     </AuthProvider>
-  )
+  );
 }

@@ -1,76 +1,142 @@
-import { Ionicons } from '@expo/vector-icons'
-import { useRouter } from 'expo-router'
-import { useState } from 'react'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { useAuth } from '../Hooks/useAuth'
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { useAuth } from '../Hooks/useAuth';
 
+const ForgotPassword = () => {
+  const { resetPassword } = useAuth(); 
+  const router = useRouter();
 
-const ForgetPassword = () => {
-    const router = useRouter()
-    const [email, setEmail] = useState('')
-    const [error, setError] = useState(null)
-   const { resetPassword } = useAuth()
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-   const handleResetPassword = async () => {
-        setError(null)
-        try {
-            await resetPassword(email)
-            router.push('LogIn')
-        } catch (err) {
-            setError(err.message)
-        }
+  const handleSubmit = async () => {
+    if (!email) {
+      setError('Please enter your email address.');
+      return;
     }
+
+    try {
+      setError('');
+      setSuccessMessage('');
+      setLoading(true);
+      await resetPassword(email);
+      setSuccessMessage(
+        'Password reset email sent! Check your inbox and follow the instructions to reset your password.'
+      );
+    } catch (error) {
+      switch (error.code) {
+        case 'auth/user-not-found':
+          setError('No account found with this email address.');
+          break;
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address.');
+          break;
+        case 'auth/too-many-requests':
+          setError('Too many password reset attempts. Please try again later.');
+          break;
+        default:
+          setError(`Failed to send reset email: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <>
-    <Ionicons
-    name='arrow-back'
-    size={20}
-    className='m-4'
-    onPress={()=>router.back()}
-    color={"#000"}
-    />
-    <View
-    className='flex items-center justify-center'>
-      <Text
-      className='text-lg'>
-        Reset Password!
-      </Text>
-      <View
-      className='w-4/5 space-y-4'>
-        <TextInput
-            placeholder=" Email"
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <KeyboardAwareScrollView
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={80} 
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 24
+        }}
+      >
+        <View className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm">
+          <Text className="text-2xl font-bold mb-4 text-gray-800 text-center">
+            Reset Password
+          </Text>
+
+          <Text className="text-gray-600 mb-6 text-sm text-center">
+            Enter your email address and we'll send you a link to reset your password.
+          </Text>
+
+          <TextInput
             value={email}
             onChangeText={setEmail}
-            autoCapitalize="none"
+            placeholder="Enter your email address..."
             keyboardType="email-address"
-            className='border rounded-lg p-2 mb-2 mt-2'
-        />
-        {error && (
-            <Text
-            className='bg-red-200'>{error}</Text>
-        )}
-        <TouchableOpacity 
-        onPress={handleResetPassword}
-        activeOpacity={0.7}
-        className='mt-4 bg-blue-500 rounded-lg p-2'
-        >
-        <Text className='text-white text-center'>
-            Reset Link
-        </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-        onPress={() => router.push('LogIn')}
-        activeOpacity={0.7}
-        className='mt-4'
-        >
-        <Text className='text-blue-500 text-right p-2'>
-            Already have an account? Log In
-        </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-    </>
-  )
-}
+            autoCapitalize="none"
+            className="border border-gray-300 w-full p-3 rounded-lg mb-4"
+          />
 
-export default ForgetPassword
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={loading}
+            className={`w-full p-3 rounded-lg ${
+              loading ? 'bg-blue-300' : 'bg-blue-500'
+            }`}
+          >
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white text-center font-semibold text-base">
+                Send Reset Email
+              </Text>
+            )}
+          </TouchableOpacity>
+
+          {successMessage ? (
+            <View className="mt-4 p-3 bg-green-100 border border-green-300 rounded-md">
+              <Text className="text-green-700 text-sm">{successMessage}</Text>
+            </View>
+          ) : null}
+
+          {error ? (
+            <View className="mt-4 p-3 bg-red-100 border border-red-300 rounded-md">
+              <Text className="text-red-700 text-sm">{error}</Text>
+              {error.includes('No account found') && (
+                <TouchableOpacity
+                  onPress={() => router.push('/signUp')}
+                  className="mt-2"
+                >
+                  <Text className="text-blue-600 underline text-sm">
+                    👉 Create a new account here
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : null}
+
+          <View className="mt-6 items-center">
+            <TouchableOpacity onPress={() => router.push('/(Auth)/LogIn')}>
+              <Text className="text-blue-600 underline text-sm">
+                ← Back to Login
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+export default ForgotPassword;

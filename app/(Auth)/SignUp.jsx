@@ -1,92 +1,141 @@
-import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import { updateProfile } from 'firebase/auth'
 import { useState } from 'react'
-import { Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Icon from 'react-native-vector-icons/Feather'
 import { useAuth } from '../Hooks/useAuth'
 
 const SignUp = () => {
-    const { signup } = useAuth()
-    const [displayName, setDisplayName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const router = useRouter()
+  const router = useRouter()
 
-    const handleSignUp = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            await signup(email, password, displayName)
-            router.push('/')
-        } catch (err) {
-            setError(err.message)
-            setLoading(false)
-        }
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { signup } = useAuth()
+
+  const handleSubmit = async () => {
+    try {
+      setError('')
+      setLoading(true)
+
+      const userCredential = await signup(email, password, displayName)
+     await updateProfile(userCredential.user, { displayName })
+
+      router.push('/(root)/HomeScreen')
+    } catch (err) {
+      setError(`Failed to create account: ${err.message}`)
+    } finally {
+      setLoading(false)
     }
+  }
+
   return (
-    <>
-    <Ionicons
-    name='arrow-back'
-    size={20}
-    className='m-4'
-    onPress={()=>router.back()}
-    color={"#000"}
-    />
-  <View
-  className='flex items-center justify-center'>
-        <Text
-        className='text-lg'>
+    <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <KeyboardAwareScrollView
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={80} 
+        contentContainerStyle={{
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 24
+        }}
+      >
+        <View className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm">
+          <Text className="text-2xl font-bold mb-6 text-gray-800 text-center">
             Create Account
-        </Text>
-        <View
-        className='w-4/5 space-y-4'>
-            <TextInput
-            placeholder=" Name"
+          </Text>
+
+          <TextInput
             value={displayName}
             onChangeText={setDisplayName}
-            className='border rounded-lg p-2 mb-2 mt-2'
-            />
-            <TextInput
-            placeholder=" Email"
+            placeholder="Enter display name..."
+            className="border w-full p-3 rounded-md mb-4 text-base"
+            autoCapitalize="words"
+            autoFocus
+          />
+
+          <TextInput
             value={email}
             onChangeText={setEmail}
+            placeholder="Enter email..."
+            className="border w-full p-3 rounded-md mb-4 text-base"
             autoCapitalize="none"
             keyboardType="email-address"
-            className='border rounded-lg p-2 mb-2 '
-            />
+          />
+
+          <View className="relative mb-4">
             <TextInput
-            placeholder=" Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            className='border rounded-lg p-2 '
+              value={password}
+              onChangeText={setPassword}
+              placeholder="Enter password..."
+              className="border w-full p-3 rounded-md text-base pr-12"
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
             />
-            {error && (
-                <Text
-                className='bg-red-200'>{error}</Text>
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+            >
+              <Icon
+                name={showPassword ? 'eye-off' : 'eye'}
+                size={18}
+                color="#6b7280"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={loading}
+            className={`w-full p-3 rounded-lg ${
+              loading ? 'bg-blue-400' : 'bg-blue-600'
+            }`}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text className="text-white text-center font-medium text-base">
+                Sign Up
+              </Text>
             )}
-        <TouchableOpacity 
-        onPress={handleSignUp}
-        activeOpacity={0.7}
-        className='mt-4 bg-blue-500 rounded-lg p-2'
-        >
-        <Text className='text-white text-center'>
-            {loading ? 'Signing up...' : 'Sign Up'}
-        </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-        onPress={() => router.push('LogIn')}
-        activeOpacity={0.7}
-        className='mt-4'
-        >
-        <Text className='text-blue-500 text-center p-2'>
-            Already have an account? Log In
-        </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-    </>
+          </TouchableOpacity>
+
+          {error ? (
+            <View className="mt-4 p-3 bg-red-100 border border-red-300 rounded-md">
+              <Text className="text-red-700 text-sm">{error}</Text>
+            </View>
+          ) : null}
+
+          <View className="mt-6 flex-row justify-center">
+            <Text className="text-gray-600 text-sm">
+              Already have an account?
+            </Text>
+            <TouchableOpacity onPress={() => router.push('/(Auth)/LogIn')}>
+              <Text className="text-blue-600 font-medium text-sm ml-1 underline">
+                Log In
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
