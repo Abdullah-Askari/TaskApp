@@ -1,10 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 
-const TaskCard = () => {
-    const [card, setCard] = useState([]);
+const TaskCard = ({total}) => {
     const router = useRouter();
   return (
     <View
@@ -12,7 +10,7 @@ const TaskCard = () => {
     <View className='flex-row items-center justify-between'>
         <View className='space-y-2'>
             <Text className='text-2xl font-semibold'>Total:</Text>
-            <Text className='text-lg'>{card.length}</Text>
+            <Text className='text-lg'>{total}</Text>
         </View>
                 <TouchableOpacity
             className='bg-blue-500 rounded-full w-12 h-12 items-center justify-center'

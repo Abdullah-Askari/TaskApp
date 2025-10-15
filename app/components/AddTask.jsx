@@ -1,13 +1,21 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { addTask } from '../../fireStore';
 
 const AddTask = () => {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [details, setDetails] = useState('');
+  const [loading, setLoading] = useState(false); 
 
   const handleAddTask = async () => {
     if (title.trim() === '') {
@@ -15,10 +23,18 @@ const AddTask = () => {
       return;
     }
 
-    const result = await addTask({ title: title.trim(), details: details.trim() });
+    setLoading(true);
+
+    const result = await addTask({
+      title: title.trim(),
+      details: details.trim(),
+    });
+
+    setLoading(false); 
+
     if (result.success) {
       Alert.alert('Success', 'Task added!', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => router.back() },
       ]);
     } else {
       Alert.alert('Error', result.error || 'Failed to add task');
@@ -27,35 +43,50 @@ const AddTask = () => {
 
   return (
     <View className="flex-1 bg-white">
+
       <Ionicons
         name="arrow-back"
-        size={20}
-        className="m-4"
+        size={24}
         color="#000"
+        style={{ margin: 16 }}
         onPress={() => router.back()}
       />
-      <Text className="text-lg text-center my-4">Add Task</Text>
+
+      <Text className="text-lg text-center my-4 font-semibold">Add Task</Text>
+
 
       <TextInput
         placeholder="Title"
-        className="border rounded-lg p-2 m-4"
+        className="border border-gray-400 rounded-lg p-3 mx-4 mb-3"
         value={title}
         onChangeText={setTitle}
       />
+
+
       <TextInput
         placeholder="Details"
-        className="border rounded-lg p-2 m-4"
+        className="border border-gray-400 rounded-lg p-3 mx-4"
         value={details}
         onChangeText={setDetails}
         multiline
         style={{ height: 120, textAlignVertical: 'top' }}
       />
 
+
       <TouchableOpacity
-        className="bg-blue-500 p-3 rounded-lg m-4"
+        className={`rounded-lg m-4 p-3 ${
+          loading ? 'bg-blue-300' : 'bg-blue-500'
+        }`}
         onPress={handleAddTask}
+        disabled={loading} 
       >
-        <Text className="text-white text-center text-lg">Add Task</Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text className="text-white text-center text-lg font-medium">
+            Add Task
+          </Text>
+        )}
       </TouchableOpacity>
     </View>
   );

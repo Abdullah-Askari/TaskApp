@@ -34,7 +34,7 @@ const SignOut = () => {
           onPress={handleSignOut}
           className="flex-row items-center justify-end p-4 space-x-2">
           <Text className="text-red-500 font-medium">Sign Out  </Text>
-          <FontAwesome name="sign-out" size={24} color="#EF4444" />
+          <FontAwesome name="sign-out" size={10} color="#EF4444" />
         </TouchableOpacity>
       </View>
     )
