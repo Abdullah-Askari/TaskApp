@@ -92,9 +92,10 @@ const ForgotPassword = () => {
             value={email}
             onChangeText={setEmail}
             placeholder="Enter your email address..."
+            placeholderTextColor={"#D3D3D3"}
             keyboardType="email-address"
             autoCapitalize="none"
-            className="border border-gray-300 w-full p-3 rounded-lg mb-4"
+            className="border border-gray-900 w-full p-3 rounded-lg mb-4"
           />
 
           <TouchableOpacity

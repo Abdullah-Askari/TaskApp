@@ -2,13 +2,13 @@ import { useRouter } from 'expo-router'
 import { updateProfile } from 'firebase/auth'
 import { useState } from 'react'
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Icon from 'react-native-vector-icons/Feather'
@@ -66,6 +66,7 @@ const SignUp = () => {
             value={displayName}
             onChangeText={setDisplayName}
             placeholder="Enter display name..."
+            placeholderTextColor={'#D3D3D3'}
             className="border w-full p-3 rounded-md mb-4 text-base"
             autoCapitalize="words"
             autoFocus
@@ -75,6 +76,7 @@ const SignUp = () => {
             value={email}
             onChangeText={setEmail}
             placeholder="Enter email..."
+            placeholderTextColor={'#D3D3D3'}
             className="border w-full p-3 rounded-md mb-4 text-base"
             autoCapitalize="none"
             keyboardType="email-address"
@@ -85,6 +87,7 @@ const SignUp = () => {
               value={password}
               onChangeText={setPassword}
               placeholder="Enter password..."
+              placeholderTextColor={'#D3D3D3'}
               className="border w-full p-3 rounded-md text-base pr-12"
               secureTextEntry={!showPassword}
               autoCapitalize="none"

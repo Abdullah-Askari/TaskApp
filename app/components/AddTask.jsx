@@ -57,6 +57,7 @@ const AddTask = () => {
 
       <TextInput
         placeholder="Title"
+        placeholderTextColor={'#D3D3D3'}
         className="border border-gray-400 rounded-lg p-3 mx-4 mb-3"
         value={title}
         onChangeText={setTitle}
@@ -65,6 +66,7 @@ const AddTask = () => {
 
       <TextInput
         placeholder="Details"
+        placeholderTextColor={'#D3D3D3'}
         className="border border-gray-400 rounded-lg p-3 mx-4"
         value={details}
         onChangeText={setDetails}
