@@ -26,8 +26,8 @@ const LogIn = () => {
     try {
       setError('');
       setLoading(true);
-  await login(email, password);
-  router.replace('/(root)/HomeScreen');
+      await login(email, password);
+      router.replace('/(root)/HomeScreen');
     } catch (error) {
       setLoading(false);
       setError(error.message);
@@ -41,38 +41,42 @@ const LogIn = () => {
     >
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
-        enableOnAndroid={true}
-        extraScrollHeight={80} 
+        enableOnAndroid
+        extraScrollHeight={80}
         contentContainerStyle={{
           flexGrow: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          paddingHorizontal: 24
+          paddingHorizontal: 24,
         }}
       >
+
         <View className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm">
           <Text className="text-2xl font-bold mb-6 text-gray-800 text-center">
-            Welcome back!
+            Welcome Back!
           </Text>
+
 
           <TextInput
             value={email}
             onChangeText={setEmail}
             placeholder="Enter email..."
-            placeholderTextColor={'#D3D3D3'}
+            placeholderTextColor="#A3A3A3"
             keyboardType="email-address"
             autoCapitalize="none"
-            className="border border-gray-300 w-full p-3 rounded-lg mb-4"
+            className="border border-gray-300 w-full p-3 rounded-lg mb-4 text-gray-900"
           />
+
 
           <View className="relative mb-4">
             <TextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Enter password..."
-              placeholderTextColor={'#D3D3D3'}
+              placeholderTextColor="#A3A3A3"
               secureTextEntry={!showPassword}
-              className="border border-gray-300 w-full p-3 pr-10 rounded-lg"
+              className="border border-gray-300 w-full p-3 pr-10 rounded-lg text-gray-900"
+              autoCapitalize="none"
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
@@ -86,6 +90,7 @@ const LogIn = () => {
             </TouchableOpacity>
           </View>
 
+
           <TouchableOpacity
             onPress={() => router.push('/(Auth)/ForgetPassword')}
             className="mb-4 self-end"
@@ -93,11 +98,12 @@ const LogIn = () => {
             <Text className="text-blue-600 text-sm">Forgot password?</Text>
           </TouchableOpacity>
 
+
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={loading}
             className={`w-full p-3 rounded-lg ${
-              loading ? 'bg-blue-300' : 'bg-blue-500'
+              loading ? 'bg-blue-300' : 'bg-blue-600'
             }`}
           >
             {loading ? (
@@ -122,7 +128,7 @@ const LogIn = () => {
                 className="text-blue-600 font-medium underline"
                 onPress={() => router.push('/(Auth)/SignUp')}
               >
-                Sign up
+                Sign Up
               </Text>
             </Text>
           </View>

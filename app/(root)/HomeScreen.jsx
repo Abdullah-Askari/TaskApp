@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  Alert,
+  ActivityIndicator,
   FlatList,
   Modal,
   RefreshControl,
@@ -11,15 +11,16 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View
 } from 'react-native';
 import logo from '../../assets/images/logo.png';
-import { deleteTask, getTasks, searchTasks, updateTask } from '../../fireStore';
+import { getTasks, searchTasks } from '../../fireStore';
 import SignOut from '../components/SignOut';
 import TaskCard from '../components/TaskCard';
 
 const HomeScreen = () => {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,87 +29,30 @@ const HomeScreen = () => {
   useEffect(() => {
     const unsubscribe = getTasks((newTasks) => {
       setTasks(newTasks);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  const handleSearch = async (query) => {
-    setSearchQuery(query);
-    if (query.trim() === '') return;
-    const response = await searchTasks(query);
-    if (response.success) setTasks(response.tasks);
-  };
-
-  const handleDelete = async (id) => {
-    Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          const response = await deleteTask(id);
-          if (!response.success) {
-            Alert.alert('Error', response.error);
-          }
-        },
-      },
-    ]);
-  };
-
-  const handleEdit = async (id, oldTitle) => {
-    Alert.prompt(
-      'Edit Task',
-      'Enter new title for this task:',
-      async (newTitle) => {
-        if (!newTitle || newTitle.trim() === '') {
-          Alert.alert('Error', 'Title cannot be empty.');
-          return;
-        }
-        const response = await updateTask(id, { title: newTitle });
-        if (!response.success) {
-          Alert.alert('Error', response.error);
-        }
-      },
-      'plain-text',
-      oldTitle
-    );
-  };
-
-  const handleRefresh =  () => {
-  setRefreshing(true);
-
-  try {
+  const handleRefresh = () => {
+    setRefreshing(true);
     const unsubscribe = getTasks((newTasks) => {
       setTasks(newTasks);
       setRefreshing(false);
-    }); 
+    });
     setTimeout(() => unsubscribe(), 1500);
-  } catch (error) {
-    console.error('Error refreshing tasks:', error);
-    setRefreshing(false);
-  }
-};
-
+  };
 
   const TaskItem = ({ item }) => (
-    <View className="bg-white p-4 m-2 rounded-lg shadow flex-col">
-      <Text className="text-lg font-medium text-gray-900">{item.title}</Text>
-      {item.details ? (
-        <Text className="text-gray-600 mt-1 flex-1">{item.details}</Text>
-      ) : null}
+    <View className="bg-white p-4 m-2 rounded-xl shadow-md">
+      <Text className="text-lg font-medium text-gray-800">{item.title}</Text>
+      {item.details && <Text className="text-gray-500 mt-1">{item.details}</Text>}
 
-      <View className="flex-row justify-end gap-2">
-        <TouchableOpacity
-          onPress={() => handleEdit(item.id, item.title)}
-          className="bg-blue-100 p-2 rounded-lg"
-        >
+      <View className="flex-row justify-end mt-2 space-x-2">
+        <TouchableOpacity onPress={() => handleEdit(item.id, item.title)} className="bg-blue-100 p-2 rounded-lg">
           <Ionicons name="pencil" size={20} color="blue" />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => handleDelete(item.id)}
-          className="bg-red-100 p-2 rounded-lg"
-        >
+        <TouchableOpacity onPress={() => handleDelete(item.id)} className="bg-red-100 p-2 rounded-lg">
           <Ionicons name="trash" size={20} color="red" />
         </TouchableOpacity>
       </View>
@@ -117,60 +61,27 @@ const HomeScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-100">
-      <View className="bg-gray-300 w-full p-2 flex-row justify-between items-center">
-        <TouchableOpacity
-          onPress={() => setMenuVisible(!menuVisible)}
-          className="p-2"
-        >
-          <Ionicons
-            name='menu'
-            size={30}
-            color="black"
-          />
+      <View className="bg-white w-full p-4 flex-row justify-between items-center shadow-md">
+        <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)} className="p-2">
+          <Ionicons name="menu" size={28} color="black" />
         </TouchableOpacity>
-
-        <Image source={logo} style={{ width: 40, height: 40 }} />
-
-        <View style={{ width: 30 }} />
+        <Image source={logo} style={{ width: 40, height: 40, borderRadius: 8 }} />
+        <View style={{ width: 28 }} />
       </View>
 
-
-      <Modal
-        transparent
-        visible={menuVisible}
-        animationType="fade"
-        onRequestClose={() => setMenuVisible(false)}
-      >
+      <Modal transparent visible={menuVisible} animationType="fade" onRequestClose={() => setMenuVisible(false)}>
         <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
-          <View className="flex-1 bg-black/30 justify-start items-start p-4">
-            <View className="bg-white rounded-lg shadow-lg w-40 p-2 relative">
-              <TouchableOpacity
-                onPress={() => setMenuVisible(false)}
-                className="absolute right-2 top-2 p-1"
-              >
-                <Ionicons name="close" size={18} color="#555" />
+          <View className="flex-1 bg-black/30 justify-start p-4">
+            <View className="bg-white rounded-xl shadow-lg w-44 p-3 relative">
+              <TouchableOpacity onPress={() => setMenuVisible(false)} className="absolute right-3 top-3 p-1">
+                <Ionicons name="close" size={20} color="#555" />
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  setMenuVisible(false);
-                  router.push('/(root)/HomeScreen');
-                }}
-                className="py-2 border-b border-gray-300 mt-5"
-              >
+              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/HomeScreen'); }} className="py-2 border-b border-gray-200 mt-5">
                 <Text className="text-gray-800 text-base">🏠 Home</Text>
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => {
-                  setMenuVisible(false);
-                  router.push('/(root)/Profile');
-                }}
-                className="py-2 border-b border-gray-300"
-              >
+              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/Profile'); }} className="py-2 border-b border-gray-200">
                 <Text className="text-gray-800 text-base">👤 Profile</Text>
               </TouchableOpacity>
-
               <View className="pt-2">
                 <TouchableOpacity className="bg-red-100 p-2 rounded-lg">
                   <SignOut />
@@ -183,43 +94,46 @@ const HomeScreen = () => {
 
       <TaskCard total={tasks.length} />
 
-      <View className="bg-white p-2 m-2 border-gray-500 flex-row items-center rounded-lg">
-        <Ionicons name="search" size={20} color="#000" />
+      <View className="flex-row items-center bg-white border border-gray-300 rounded-full px-4 py-2 mx-4 my-2 shadow-sm">
+        <Ionicons name="search" size={20} color="#888" />
         <TextInput
           placeholder="Search tasks..."
-          placeholderTextColor="#000"
-          className="flex-1"
+          placeholderTextColor="#A3A3A3"
+          className="flex-1 ml-3 text-base p-0"
           value={searchQuery}
-          onChangeText={handleSearch}
+          onChangeText={async (text) => {
+            setSearchQuery(text);
+            if (text.trim() === '') return;
+            const response = await searchTasks(text);
+            if (response.success) setTasks(response.tasks);
+          }}
         />
         {searchQuery.length > 0 && (
-          <TouchableOpacity onPress={() => handleSearch('')}>
-            <Ionicons name="close" size={20} color="#000" />
+          <TouchableOpacity onPress={() => setSearchQuery('')}>
+            <Ionicons name="close" size={20} color="#888" />
           </TouchableOpacity>
         )}
       </View>
 
-      <Text className="text-left p-4 text-2xl font-normal text-gray-500">
-        Recents
-      </Text>
+      <Text className="text-left px-4 py-2 text-2xl font-semibold text-gray-600">Recents</Text>
 
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <TaskItem item={item} />}
-        ListEmptyComponent={
-          <Text className="text-center text-gray-500 mt-10">No tasks found</Text>
-        }
-        contentContainerStyle={{ paddingBottom: 100 }}
-        refreshControl={
-          <RefreshControl
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          colors={['#2196F3']}
-          tintColor='#2196F3'
-          />
-        }
-      />
+      {loading ? (
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#2196F3" />
+          <Text className="mt-2 text-gray-500">Loading tasks...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={tasks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <TaskItem item={item} />}
+          ListEmptyComponent={<Text className="text-center text-gray-400 mt-10">No tasks found</Text>}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#2196F3']} tintColor="#2196F3" />
+          }
+        />
+      )}
     </View>
   );
 };

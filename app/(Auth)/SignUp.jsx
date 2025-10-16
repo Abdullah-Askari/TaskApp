@@ -1,6 +1,7 @@
-import { useRouter } from 'expo-router'
-import { updateProfile } from 'firebase/auth'
-import { useState } from 'react'
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { updateProfile } from 'firebase/auth';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -9,54 +10,63 @@ import {
   TextInput,
   TouchableOpacity,
   View
-} from 'react-native'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import Icon from 'react-native-vector-icons/Feather'
-import { useAuth } from '../Hooks/useAuth'
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import Icon from 'react-native-vector-icons/Feather';
+import { useAuth } from '../Hooks/useAuth';
 
 const SignUp = () => {
-  const router = useRouter()
-
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [displayName, setDisplayName] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const { signup } = useAuth()
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { signup } = useAuth();
 
   const handleSubmit = async () => {
     try {
-      setError('')
-      setLoading(true)
-
-      const userCredential = await signup(email, password, displayName)
-     await updateProfile(userCredential.user, { displayName })
-
-      router.push('/(root)/HomeScreen')
+      setError('');
+      setLoading(true);
+      const userCredential = await signup(email, password, displayName);
+      await updateProfile(userCredential.user, { displayName });
+      router.push('/(root)/HomeScreen');
     } catch (err) {
-      setError(`Failed to create account: ${err.message}`)
+      setError(`Failed to create account: ${err.message}`);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps="handled"
         enableOnAndroid={true}
-        extraScrollHeight={80} 
+        extraScrollHeight={80}
         contentContainerStyle={{
           flexGrow: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          paddingHorizontal: 24
+          paddingHorizontal: 24,
         }}
       >
+
+        <View className="flex-row items-center w-full mb-6">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="p-2 rounded-full bg-gray-200"
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text className="text-2xl font-bold text-gray-800 ml-4">Sign Up</Text>
+        </View>
+
+
         <View className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm">
           <Text className="text-2xl font-bold mb-6 text-gray-800 text-center">
             Create Account
@@ -66,29 +76,31 @@ const SignUp = () => {
             value={displayName}
             onChangeText={setDisplayName}
             placeholder="Enter display name..."
-            placeholderTextColor={'#D3D3D3'}
-            className="border w-full p-3 rounded-md mb-4 text-base"
+            placeholderTextColor="#A3A3A3"
+            className="border w-full p-3 rounded-md mb-4 text-base text-gray-900"
             autoCapitalize="words"
             autoFocus
           />
+
 
           <TextInput
             value={email}
             onChangeText={setEmail}
             placeholder="Enter email..."
-            placeholderTextColor={'#D3D3D3'}
-            className="border w-full p-3 rounded-md mb-4 text-base"
+            placeholderTextColor="#A3A3A3"
+            className="border w-full p-3 rounded-md mb-4 text-base text-gray-900"
             autoCapitalize="none"
             keyboardType="email-address"
           />
+
 
           <View className="relative mb-4">
             <TextInput
               value={password}
               onChangeText={setPassword}
               placeholder="Enter password..."
-              placeholderTextColor={'#D3D3D3'}
-              className="border w-full p-3 rounded-md text-base pr-12"
+              placeholderTextColor="#707070"
+              className="border w-full p-3 rounded-md text-base pr-12 text-gray-900"
               secureTextEntry={!showPassword}
               autoCapitalize="none"
             />
@@ -103,6 +115,7 @@ const SignUp = () => {
               />
             </TouchableOpacity>
           </View>
+
 
           <TouchableOpacity
             onPress={handleSubmit}
@@ -120,11 +133,12 @@ const SignUp = () => {
             )}
           </TouchableOpacity>
 
-          {error ? (
+
+          {error && (
             <View className="mt-4 p-3 bg-red-100 border border-red-300 rounded-md">
               <Text className="text-red-700 text-sm">{error}</Text>
             </View>
-          ) : null}
+          )}
 
           <View className="mt-6 flex-row justify-center">
             <Text className="text-gray-600 text-sm">
@@ -139,7 +153,7 @@ const SignUp = () => {
         </View>
       </KeyboardAwareScrollView>
     </KeyboardAvoidingView>
-  )
-}
+  );
+};
 
-export default SignUp
+export default SignUp;
