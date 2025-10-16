@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
@@ -55,6 +56,14 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+    <View className="m-4">
+    <TouchableOpacity className="flex-row items-center space-x-2"
+    onPress={()=>router.push('/(Auth)/LogIn')}>
+    <Ionicons name="arrow-back" color="#000" size={24} />
+    <Text className="text-black text-base">Back to login</Text>
+    </TouchableOpacity>
+    </View>
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -125,17 +134,10 @@ const ForgotPassword = () => {
               )}
             </View>
           ) : null}
-
-          <View className="mt-6 items-center">
-            <TouchableOpacity onPress={() => router.push('/(Auth)/LogIn')}>
-              <Text className="text-blue-600 underline text-sm">
-                ← Back to Login
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
       </KeyboardAwareScrollView>
     </KeyboardAvoidingView>
+    </>
   );
 };
 
