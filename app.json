@@ -48,7 +48,10 @@
     },
     "extra": {
       "router": {},
-      "eas": {}
-    }
+      "eas": {
+        "projectId": "b261e149-e70c-407f-b3f3-1712c56f09ad"
+      }
+    },
+    "owner": "abdullah_askari"
   }
 }
