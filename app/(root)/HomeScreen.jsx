@@ -14,7 +14,7 @@ import {
   View
 } from 'react-native';
 import logo from '../../assets/images/logo.png';
-import { getTasks, searchTasks } from '../../fireStore';
+import { deleteTask, getTasks, searchTasks, updateTask } from '../../fireStore';
 import SignOut from '../components/SignOut';
 import TaskCard from '../components/TaskCard';
 
@@ -24,6 +24,10 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState(null);
+  const [editedText, setEditedText] = useState('');
+
   const router = useRouter();
 
   useEffect(() => {
@@ -43,16 +47,53 @@ const HomeScreen = () => {
     setTimeout(() => unsubscribe(), 1500);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      setTasks(tasks.filter(t => t.id !== id));
+      const result = await deleteTask(id);
+      if (!result.success) console.error('Firestore delete failed:', result.error);
+    } catch (error) {
+      console.error('Delete failed:', error);
+    }
+  };
+
+  const handleEdit = async (id, newTitle) => {
+    try {
+      setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle } : t));
+      const result = await updateTask(id, { title: newTitle });
+      if (!result.success) console.error('Firestore update failed:', result.error);
+    } catch (error) {
+      console.error('Edit failed:', error);
+    }
+  };
+
+  const closeEditModal = () => {
+    setEditModalVisible(false);
+    setTaskToEdit(null);
+    setEditedText('');
+  };
+
   const TaskItem = ({ item }) => (
     <View className="bg-white p-4 m-2 rounded-xl shadow-md">
       <Text className="text-lg font-medium text-gray-800">{item.title}</Text>
       {item.details && <Text className="text-gray-500 mt-1">{item.details}</Text>}
 
-      <View className="flex-row justify-end mt-2 space-x-2">
-        <TouchableOpacity onPress={() => handleEdit(item.id, item.title)} className="bg-blue-100 p-2 rounded-lg">
+      <View className="flex-row justify-end mt-2 space-x-4 gap-3">
+        <TouchableOpacity
+          onPress={() => {
+            setTaskToEdit({ id: item.id, title: item.title });
+            setEditedText(item.title);
+            setEditModalVisible(true);
+          }}
+          className="bg-blue-100 p-2 rounded-lg"
+        >
           <Ionicons name="pencil" size={20} color="blue" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete(item.id)} className="bg-red-100 p-2 rounded-lg">
+
+        <TouchableOpacity
+          onPress={() => handleDelete(item.id)}
+          className="bg-red-100 p-2 rounded-lg"
+        >
           <Ionicons name="trash" size={20} color="red" />
         </TouchableOpacity>
       </View>
@@ -134,6 +175,46 @@ const HomeScreen = () => {
           }
         />
       )}
+
+      <Modal
+        transparent
+        visible={editModalVisible}
+        animationType="slide"
+        onRequestClose={closeEditModal}
+      >
+        <TouchableWithoutFeedback onPress={closeEditModal}>
+          <View className="flex-1 justify-center items-center bg-black/40">
+            <View className="bg-white w-11/12 p-6 rounded-xl">
+              <Text className="text-lg font-semibold mb-4">Edit Task</Text>
+              <TextInput
+                value={editedText}
+                onChangeText={setEditedText}
+                placeholder="Enter new text"
+                className="border border-gray-300 p-2 rounded mb-4"
+              />
+              <View className="flex-row justify-end space-x-4">
+                <TouchableOpacity
+                  onPress={closeEditModal}
+                  className="bg-gray-200 p-2 rounded"
+                >
+                  <Text>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!taskToEdit) return;
+                    handleEdit(taskToEdit.id, editedText);
+                    closeEditModal();
+                  }}
+                  className="bg-blue-500 p-2 rounded"
+                >
+                  <Text className="text-white">Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
     </View>
   );
 };
