@@ -48,23 +48,15 @@ const HomeScreen = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      setTasks(tasks.filter(t => t.id !== id));
-      const result = await deleteTask(id);
-      if (!result.success) console.error('Firestore delete failed:', result.error);
-    } catch (error) {
-      console.error('Delete failed:', error);
-    }
+    setTasks(tasks.filter(t => t.id !== id));
+    const result = await deleteTask(id);
+    if (!result.success) console.error('Delete failed:', result.error);
   };
 
   const handleEdit = async (id, newTitle) => {
-    try {
-      setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle } : t));
-      const result = await updateTask(id, { title: newTitle });
-      if (!result.success) console.error('Firestore update failed:', result.error);
-    } catch (error) {
-      console.error('Edit failed:', error);
-    }
+    setTasks(tasks.map(t => t.id === id ? { ...t, title: newTitle } : t));
+    const result = await updateTask(id, { title: newTitle });
+    if (!result.success) console.error('Update failed:', result.error);
   };
 
   const closeEditModal = () => {
@@ -74,25 +66,23 @@ const HomeScreen = () => {
   };
 
   const TaskItem = ({ item }) => (
-    <View className="bg-white p-4 m-2 rounded-xl shadow-md">
-      <Text className="text-lg font-medium text-gray-800">{item.title}</Text>
+    <View className="bg-white p-5 my-2 mx-4 rounded-2xl shadow-lg">
+      <Text className="text-lg font-semibold text-gray-800">{item.title}</Text>
       {item.details && <Text className="text-gray-500 mt-1">{item.details}</Text>}
-
-      <View className="flex-row justify-end mt-2 space-x-4 gap-3">
+      <View className="flex-row justify-end mt-3 space-x-3 gap-3">
         <TouchableOpacity
           onPress={() => {
             setTaskToEdit({ id: item.id, title: item.title });
             setEditedText(item.title);
             setEditModalVisible(true);
           }}
-          className="bg-blue-100 p-2 rounded-lg"
+          className="bg-blue-100 p-3 rounded-lg"
         >
           <Ionicons name="pencil" size={20} color="blue" />
         </TouchableOpacity>
-
         <TouchableOpacity
           onPress={() => handleDelete(item.id)}
-          className="bg-red-100 p-2 rounded-lg"
+          className="bg-red-100 p-3 rounded-lg"
         >
           <Ionicons name="trash" size={20} color="red" />
         </TouchableOpacity>
@@ -102,29 +92,29 @@ const HomeScreen = () => {
 
   return (
     <View className="flex-1 bg-gray-100">
-      <View className="bg-white w-full p-4 flex-row justify-between items-center shadow-md">
-        <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)} className="p-2">
+      <View className="bg-white w-full p-4 flex-row justify-between items-center shadow-lg rounded-2xl">
+        <TouchableOpacity onPress={() => setMenuVisible(!menuVisible)} className="p-2 rounded-full bg-gray-100">
           <Ionicons name="menu" size={28} color="black" />
         </TouchableOpacity>
-        <Image source={logo} style={{ width: 40, height: 40, borderRadius: 8 }} />
+        <Image source={logo} style={{ width: 45, height: 45, borderRadius: 12 }} />
         <View style={{ width: 28 }} />
       </View>
 
       <Modal transparent visible={menuVisible} animationType="fade" onRequestClose={() => setMenuVisible(false)}>
         <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
           <View className="flex-1 bg-black/30 justify-start p-4">
-            <View className="bg-white rounded-xl shadow-lg w-44 p-3 relative">
+            <View className="bg-white rounded-2xl shadow-xl w-48 p-4 relative">
               <TouchableOpacity onPress={() => setMenuVisible(false)} className="absolute right-3 top-3 p-1">
                 <Ionicons name="close" size={20} color="#555" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/HomeScreen'); }} className="py-2 border-b border-gray-200 mt-5">
+              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/HomeScreen'); }} className="py-3 border-b border-gray-200 mt-6">
                 <Text className="text-gray-800 text-base">🏠 Home</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/Profile'); }} className="py-2 border-b border-gray-200">
+              <TouchableOpacity onPress={() => { setMenuVisible(false); router.push('/(root)/Profile'); }} className="py-3 border-b border-gray-200">
                 <Text className="text-gray-800 text-base">👤 Profile</Text>
               </TouchableOpacity>
-              <View className="pt-2">
-                <TouchableOpacity className="bg-red-100 p-2 rounded-lg">
+              <View className="pt-3">
+                <TouchableOpacity className="bg-red-100 p-3 rounded-xl">
                   <SignOut />
                 </TouchableOpacity>
               </View>
@@ -135,7 +125,7 @@ const HomeScreen = () => {
 
       <TaskCard total={tasks.length} />
 
-      <View className="flex-row items-center bg-white border border-gray-300 rounded-full px-4 py-2 mx-4 my-2 shadow-sm">
+      <View className="flex-row items-center bg-gray-50 border border-gray-200 rounded-full px-4 py-2 mx-4 my-2 shadow-sm">
         <Ionicons name="search" size={20} color="#888" />
         <TextInput
           placeholder="Search tasks..."
@@ -156,7 +146,7 @@ const HomeScreen = () => {
         )}
       </View>
 
-      <Text className="text-left px-4 py-2 text-2xl font-semibold text-gray-600">Recents</Text>
+      <Text className="text-left px-4 py-2 text-2xl font-semibold text-gray-700">Recents</Text>
 
       {loading ? (
         <View className="flex-1 justify-center items-center">
@@ -169,7 +159,7 @@ const HomeScreen = () => {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <TaskItem item={item} />}
           ListEmptyComponent={<Text className="text-center text-gray-400 mt-10">No tasks found</Text>}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 120 }}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={['#2196F3']} tintColor="#2196F3" />
           }
@@ -184,18 +174,18 @@ const HomeScreen = () => {
       >
         <TouchableWithoutFeedback onPress={closeEditModal}>
           <View className="flex-1 justify-center items-center bg-black/40">
-            <View className="bg-white w-11/12 p-6 rounded-xl">
+            <View className="bg-white w-11/12 p-6 rounded-2xl shadow-lg">
               <Text className="text-lg font-semibold mb-4">Edit Task</Text>
               <TextInput
                 value={editedText}
                 onChangeText={setEditedText}
                 placeholder="Enter new text"
-                className="border border-gray-300 p-2 rounded mb-4"
+                className="border border-gray-300 p-3 rounded-md mb-4 text-base"
               />
-              <View className="flex-row justify-end space-x-4">
+              <View className="flex-row justify-end space-x-4 gap-3">
                 <TouchableOpacity
                   onPress={closeEditModal}
-                  className="bg-gray-200 p-2 rounded"
+                  className="bg-gray-200 p-3 rounded-lg"
                 >
                   <Text>Cancel</Text>
                 </TouchableOpacity>
@@ -205,16 +195,15 @@ const HomeScreen = () => {
                     handleEdit(taskToEdit.id, editedText);
                     closeEditModal();
                   }}
-                  className="bg-blue-500 p-2 rounded"
+                  className="bg-blue-500 p-3 rounded-lg"
                 >
-                  <Text className="text-white">Save</Text>
+                  <Text className="text-white font-medium">Save</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-
     </View>
   );
 };
