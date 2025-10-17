@@ -31,7 +31,7 @@ const SignUp = () => {
       setLoading(true);
       const userCredential = await signup(email, password, displayName);
       await updateProfile(userCredential.user, { displayName });
-      router.push('/(root)/HomeScreen');
+      router.push('/(Auth)/LogIn');
     } catch (err) {
       setError(`Failed to create account: ${err.message}`);
     } finally {
